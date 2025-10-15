@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -31,10 +31,10 @@ export class AuthService {
 
   async login(email: string, password: string, res: Response) {
     const user = await this.users.findByEmail(email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) throw new BadRequestException('Invalid credentials');
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
+    if (!isMatch) throw new BadRequestException('Invalid credentials');
 
     const tokens = await this.generateTokens(user.id, user.email);
     this.setRefreshCookie(res, tokens.refreshToken);
